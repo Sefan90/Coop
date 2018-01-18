@@ -28,9 +28,17 @@ function player.move(player,dt)
         moveplayer.mode = 'circle'--players[1].mode+1-math.floor(players[1].mode+1/2)*2
     end
 
-    if collision.checkObjects(player,moveplayer,objects) and collision.checkObjects(player,moveplayer,players) then
+    local collisioncheckers = {}
+    table.insert(collisioncheckers,collision.checkObjects(player,moveplayer,objects))
+    table.insert(collisioncheckers,collision.checkObjects(player,moveplayer,movingobjects))
+    table.insert(collisioncheckers,collision.checkObjects(player,moveplayer,players))
+
+    if collisioncheckers[1][1] and collisioncheckers[2][1] and collisioncheckers[3][1] then
         return moveplayer
     else
+    	if collisioncheckers[1][2] == false or collisioncheckers[2][2] == false or collisioncheckers[3][2] == false then
+    		player.alive = false
+    	end
         player.moving = 0
         return player
     end

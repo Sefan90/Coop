@@ -48,13 +48,17 @@ end
 
 function collision.checkObjects(player,moveplayer,objects)
     local notCollided = true
+    local playeralive = true
     for i = 1, #objects do
         if collision.check(moveplayer,objects[i]) and objects[i] ~= player then
             notCollided = false
-            break
+            if objects[i].enemy == true then
+                playeralive = false
+                break
+            end
         end
     end
-    return notCollided
+    return {notCollided, playeralive}
 end
 
 return collision
