@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset name="walls16" tilewidth="16" tileheight="16" tilecount="16" columns="4">
- <image source="../../GitHubJam/image/walls.png" width="64" height="64"/>
+<tileset name="walls" tilewidth="16" tileheight="16" tilecount="25" columns="5">
+ <image source="img/walls.png" width="80" height="80"/>
 </tileset>

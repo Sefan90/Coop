@@ -1,4 +1,6 @@
 local collision = require 'collision'
+local func = require 'func'
+
 local player = {
     _VERSION     = '0.0.1',
     _DESCRIPTION = 'Player library',
@@ -6,8 +8,8 @@ local player = {
     _LICENSE     = [[license text, or name/url for long licenses)]]
 }
 
-function player.move(player,dt)
-    local moveplayer = shallowCopy(player)
+function player.move(player,dt,objects,movingobjects,players)
+    local moveplayer = func.shallowCopy(player)
     if player.moving == 1 then
         moveplayer.y = player.y - player.speed*dt
     elseif player.moving == 2 then
@@ -47,6 +49,7 @@ end
 function player.drawplayers(objects)
     for i = 1, #objects do
         if objects[i].mode == 'rect' then
+            love.graphics.rectangle('fill', objects[i].x, objects[i].y, objects[i].w, objects[i].h)
             love.graphics.rectangle(objects[i].drawmode, objects[i].x, objects[i].y, objects[i].w, objects[i].h)
         elseif objects[i].mode == 'circle' then
             love.graphics.circle(objects[i].drawmode, objects[i].x+objects[i].r, objects[i].y+objects[i].r, objects[i].r,4)
