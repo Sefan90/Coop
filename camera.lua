@@ -1,16 +1,10 @@
 local camera = {}
-camera.x = 0
-camera.y = 0
-camera.w, camera.h = love.graphics.getDimensions()
-camera.tx = 0
-camera.ty = 0
-camera.sizex = 0
-camera.sizey = 0
+local camMT = {__index = camera}
 
 
 function camera:set()
 	love.graphics.push() 
-	love.graphics.translate(self.x*(self.w-self.tx*2),-self.y*(self.h-self.ty*2))
+	love.graphics.translate(-self.cx,-self.cy)
 	love.graphics.setScissor(self.tx,self.ty,self.sizex,self.sizey) 
 end 
 
@@ -20,35 +14,38 @@ function camera:unset()
 end 
 
 function camera:getXY()
-	return {x = self.x, y = self.y}
+	return {x = self.cx, y = self.cy}
 end
 function camera:setXY(newX,newY)
 	self.x = newx or 0
 	self.y = newy or 0
 end
 
-function camera:setscreen(newX,newY,newTX,newTY,newSX,newSY)
-	self.x = newx or 0
-	self.y = newy or 0
-	self.tx = newTX
-	self.ty = newTY 
-	self.sizex = newSX
-	self.sizey = newSY
+function camera.new(newX,newY,newTX,newTY,newSX,newSY)
+	local cam = setmetatable({
+		tx = newTX,
+		ty = newTY,
+		cx = -newX,
+		cy = -newY,
+		sizex = newSX,
+		sizey = newSY
+	}, camMT)
+	return cam
 end
 
 function camera:checkplayer(player)
 	local changed = false
-	if player.x+player.w/2-camera.tx < -self.x*(self.w-self.tx*2)+1 then
-		self.x = self.x+1
+	if player.x+player.w/2 < self.cx+self.tx then
+		self.cx = self.cx-self.sizex
 		changed = true 
-	elseif player.x+player.w/2-camera.tx > -(self.x-1)*(self.w-self.tx*2)-1 then
-		self.x = self.x-1
+	elseif player.x+player.w/2 > self.cx+self.sizex+self.tx then
+		self.cx = self.cx+self.sizex
 		changed = true 
-	elseif player.y+player.h/2-camera.ty < (self.y)*(self.h-self.ty*2)+1 then
-		self.y = self.y-1
+	elseif player.y+player.h/2 < self.cy+self.ty then
+		self.cy = self.cy-self.sizey
 		changed = true
-	elseif player.y+player.h/2-camera.ty > (self.y+1)*(self.h-self.ty*2)-1 then
-		self.y = self.y+1
+	elseif player.y+player.h/2 > self.cy+self.sizey+self.ty then
+		self.cy = self.cy+self.sizey
 		changed = true
 	end
 	return changed

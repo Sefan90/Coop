@@ -9,10 +9,10 @@ function func.shallowCopy(original)
 end
 
 function func.getTileSize(width,height)
-    if width/16 < height/12 then
-        return width/16
+    if width/64 < height/32 then
+        return width/64 --16
     else
-        return height/12
+        return height/32 --12
     end
 end
 

@@ -30,6 +30,13 @@ function player.move(player,dt,objects,movingobjects,players)
         moveplayer.mode = 'circle'--players[1].mode+1-math.floor(players[1].mode+1/2)*2
     end
 
+    --FULFIX
+    if player.moving ~= 0 then
+    	player.moving = 0
+    	moveplayer.moving = 0
+    end
+
+
     local collisioncheckers = {}
     table.insert(collisioncheckers,collision.checkObjects(player,moveplayer,objects))
     table.insert(collisioncheckers,collision.checkObjects(player,moveplayer,movingobjects))
