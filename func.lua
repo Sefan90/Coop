@@ -8,12 +8,21 @@ function func.shallowCopy(original)
     return copy
 end
 
-function func.getTileSize(width,height)
-    if width/64 < height/32 then
-        return width/64 --16
+function func.getTileSize(width,height,mapsize)
+    if width/mapsize.x < height/mapsize.y then
+        return width/mapsize.x
     else
-        return height/32 --12
+        return height/mapsize.y
     end
+end
+
+function func.tablecheck(table,value)
+	for i, v in ipairs(table) do
+  		if v == value then
+  			return true
+  		end
+	end
+	return false
 end
 
 return func

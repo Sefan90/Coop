@@ -1,4 +1,3 @@
-local collision = require 'collision'
 local func = require 'func'
 
 local player = {
@@ -8,62 +7,53 @@ local player = {
     _LICENSE     = [[license text, or name/url for long licenses)]]
 }
 
-function player.move(player,dt,objects,movingobjects,players)
-    local moveplayer = func.shallowCopy(player)
-    if player.moving == 1 then
-        moveplayer.y = player.y - player.speed*dt
-    elseif player.moving == 2 then
-        moveplayer.x = player.x - player.speed*dt
-    elseif player.moving == 3 then
-        moveplayer.y = player.y + player.speed*dt
-    elseif player.moving == 4 then
-        moveplayer.x = player.x + player.speed*dt
-    elseif love.keyboard.isDown(player.up) then
-        moveplayer.moving = 1
-    elseif love.keyboard.isDown(player.left) then
-        moveplayer.moving = 2
-    elseif love.keyboard.isDown(player.down) then
-        moveplayer.moving = 3
-    elseif love.keyboard.isDown(player.right) then
-        moveplayer.moving = 4
-    elseif love.keyboard.isDown('space') then
-        moveplayer.mode = 'circle'--players[1].mode+1-math.floor(players[1].mode+1/2)*2
+function player.move(player,dt,world)
+    if love.keyboard.isDown(player.left) then
+  		local actualX, actualY, cols, len = world:move(player, player.x - player.speed*dt, player.y, playerFilter)
+  		player.x, player.y = actualX, actualY
     end
-
-    --FULFIX
-    if player.moving ~= 0 then
-    	player.moving = 0
-    	moveplayer.moving = 0
+    if love.keyboard.isDown(player.right) then
+  		local actualX, actualY, cols, len = world:move(player, player.x + player.speed*dt, player.y, playerFilter)
+  		player.x, player.y = actualX, actualY
     end
+    if player.flying == true then
+	    if love.keyboard.isDown(player.up) then
+	        local actualX, actualY, cols, len = world:move(player, player.x, player.y - player.speed*dt, playerFilter)
+  			player.x, player.y = actualX, actualY
+	    end
+	    if love.keyboard.isDown(player.down) then
+	        local actualX, actualY, cols, len = world:move(player, player.x, player.y + player.speed*dt, playerFilter)
+  			player.x, player.y = actualX, actualY
+	    end
+	else
+		if love.keyboard.isDown(player.up) and player.jump == false then
+			player.jumptime = player.jumptime + 1
+			player.jump = true
+		end
+	    if love.keyboard.isDown(player.down) and player.jump == true then
+	    	player.jumptime = player.jumptime - 0.1
+	    end
+	    if player.jump == true then
+	    	player.jumptime = player.jumptime - 0.0006
+	    	if player.jumptime < 0 then
+	    		player.jumptime = 0
+	    	end
+	    end
+		local actualX, actualY, cols, len = world:move(player, player.x, player.y + player.speed*dt*(-player.jumptime+1) - player.speed*dt*(player.jumptime), playerFilter)
+		if actualY == player.y and player.jumptime == 0 then
+			player.jump = false
+		end
+	  	player.x, player.y = actualX, actualY
+	end
 
-
-    local collisioncheckers = {}
-    table.insert(collisioncheckers,collision.checkObjects(player,moveplayer,objects))
-    table.insert(collisioncheckers,collision.checkObjects(player,moveplayer,movingobjects))
-    table.insert(collisioncheckers,collision.checkObjects(player,moveplayer,players))
-
-    if collisioncheckers[1][1] and collisioncheckers[2][1] and collisioncheckers[3][1] then
-        return moveplayer
-    else
-    	if collisioncheckers[1][2] == false or collisioncheckers[2][2] == false or collisioncheckers[3][2] == false then
-    		player.alive = false
-    	end
-        player.moving = 0
-        return player
-    end
+    return player
 end
 
 function player.drawplayers(objects)
     for i = 1, #objects do
-        if objects[i].mode == 'rect' then
-            love.graphics.rectangle('fill', objects[i].x, objects[i].y, objects[i].w, objects[i].h)
-            love.graphics.rectangle(objects[i].drawmode, objects[i].x, objects[i].y, objects[i].w, objects[i].h)
-        elseif objects[i].mode == 'circle' then
-            love.graphics.circle(objects[i].drawmode, objects[i].x+objects[i].r, objects[i].y+objects[i].r, objects[i].r,4)
-        else
-            love.graphics.circle(objects[i].drawmode, objects[i].x+objects[i].r, objects[i].y+objects[i].r, objects[i].r)
-        end
+        love.graphics.rectangle('fill', objects[i].x, objects[i].y, objects[i].w, objects[i].h)
     end
 end
 
 return player
+
