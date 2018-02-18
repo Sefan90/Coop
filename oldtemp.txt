@@ -1,0 +1,4 @@
+skapa ett skript som utgåt från 1 punkt i kanten och ska ta sig till en anna kant genom att åka till block.
+utgå sedan från det nya stället och hitta ett annat ställe att åka till
+Testa så det går att åka från starten och från den gamla punkten.
+Gör detta tills det krävs X antal förflyttningar
