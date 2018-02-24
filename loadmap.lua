@@ -1,5 +1,3 @@
-local player1levels = require 'player1levels'
-local player2levels = require 'player2levels'
 local object = require 'object'
 local func = require 'func'
 local loadmap = {}
@@ -17,11 +15,12 @@ end
 local function loadlevel(player)
 	local gravity = false
 	local map1d = nil 
+	print(player.level)
 	if player.flying == true then
-		map1d = love.filesystem.load('maps/coopTest'..player.level..'.lua')().layers[1].data --player1levels[player.level]
+		map1d = love.filesystem.load('maps/level'..player.level..'.lua')().layers[1].data
 		gravity = false
 	else
-		map1d = love.filesystem.load('maps/coopTest'..player.level..'.lua')().layers[2].data--player2levels[player.level]
+		map1d = love.filesystem.load('maps/level'..player.level..'.lua')().layers[2].data
 		gravity = true
 	end
 	local map2d = {}
@@ -39,28 +38,44 @@ local function nextlevel(player)
 	return player
 end
 
-local function createbumpobjects(player,x,y,tilesize,world)
+local function previouslevel(player)
+	player.level = player.level - 1
+	return player
+end
+
+local function createbumpobjects(nextlevel,player,x,y,tilesize,world)
 	local level, gravity = loadlevel(player)
-	return object.createmovingobjects(level,gravity,x,y,tilesize,world)
+	return object.createmovingobjects(nextlevel,level,gravity,x,y,tilesize,world)
 end
 
 function loadmap.newmap(player,x,y,tilesize,world)
-	return createbumpobjects(player,x,y,tilesize,world)
+	return createbumpobjects(true,player,x,y,tilesize,world)
 end
 
 function loadmap.nextmap(player,objects,movingobjects,x,y,tilesize,world)
 	removebumpobjects(objects,world)
 	removebumpobjects(movingobjects,world)
-	if player.flying == true then
-		if player.level  == #player1levels then
-			player.level = #player1levels-1
-		end
-	else
-		if player.level  == #player2levels then
-			player.level = #player2levels-1
-		end
+	if player.level == 10 then
+		player.level = 9
+		print("player.level är för stor")
 	end
-	return createbumpobjects(nextlevel(player),x,y,tilesize,world)
+	return createbumpobjects(true,nextlevel(player),x,y,tilesize,world)
+end
+
+function loadmap.previousmap(player,objects,movingobjects,x,y,tilesize,world)
+	removebumpobjects(objects,world)
+	removebumpobjects(movingobjects,world)
+	if player.level == 1 then
+		player.level = 2
+		print("player.level är för liten")
+	end
+	return createbumpobjects(false,previouslevel(player),x,y,tilesize,world)
+end
+
+function loadmap.reloadmap(player,objects,movingobjects,x,y,tilesize,world)
+	removebumpobjects(objects,world)
+	removebumpobjects(movingobjects,world)
+	return createbumpobjects(true,player,x,y,tilesize,world)
 end
 
 return loadmap

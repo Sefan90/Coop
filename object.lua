@@ -11,7 +11,7 @@ local function objectshape(object)
 	if object.type == 'bg' then
 		love.graphics.setColor(127, 127, 127)
 		love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
-	elseif object.type == 'end1' or object.type == 'end2' then
+	elseif object.type == 'end1' or object.type == 'end2' or object.type == 'start1' or object.type == 'start2' then
 		love.graphics.setColor(0, 127, 191)
 		love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
 	elseif object.type == 'end1door' or object.type == 'end2door' then
@@ -109,14 +109,18 @@ local function objectshape(object)
 	elseif object.type == 'player1door1' or object.type == 'player1door2' then
 		if object.active == false and object.gravity == false then
 			love.graphics.setColor(0, 127, 0)
-			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+			love.graphics.rectangle('line', object.x, object.y, object.w, object.h)
 		elseif object.active == true and object.gravity == false then
+			love.graphics.setColor(127, 127, 127)
+			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
 			love.graphics.setColor(0, 127, 0)
 			love.graphics.rectangle('line', object.x, object.y, object.w, object.h)
 		elseif object.active == false and object.gravity == true then
 			love.graphics.setColor(0, 127, 0)
-			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+			love.graphics.rectangle('line', object.x, object.y, object.w, object.h)
 		else
+			love.graphics.setColor(127, 127, 127)
+			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
 			love.graphics.setColor(0, 127, 0)
 			love.graphics.rectangle('line', object.x, object.y, object.w, object.h)
 		end
@@ -215,7 +219,7 @@ function object.drawobjects(objects)
     end
 end
 
-function object.createmovingobjects(map,gravity,tx,ty,tilesize,world)
+function object.createmovingobjects(nextmap,map,gravity,tx,ty,tilesize,world)
 	--Fixa så att det skapas object som kan skicka spelaren till en ny level
 	local bgobjects = {}
 	local objects = {}
@@ -225,6 +229,9 @@ function object.createmovingobjects(map,gravity,tx,ty,tilesize,world)
         for j = 1, #map[i] do
         	if map[i][j] == 2 then --Background
         		table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'bg'})
+        	elseif map[i][j] == 0 then
+                table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'outside'})
+                world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
             elseif map[i][j] == 1 then --Vägg
                 table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'wall'})
                 world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
@@ -237,20 +244,35 @@ function object.createmovingobjects(map,gravity,tx,ty,tilesize,world)
                 table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize*2, h = tilesize*2, gravity = gravity, type = 'blockplayer2'})
                 world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
             elseif map[i][j] == 9 then --Player1 spawn
+            	table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize-tilesize/2, y = ty+(i-1)*tilesize-tilesize/2, w = tilesize*2, h = tilesize*2, type = 'start1'})
+                world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
             	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'bg'})
-            	playerstart.x = tx+(j-1)*tilesize
-            	playerstart.y = ty+(i-1)*tilesize
+            	if nextmap == true then
+            		playerstart.x = tx+(j-1)*tilesize
+            		playerstart.y = ty+(i-1)*tilesize
+            	end
             elseif map[i][j] == 11 then --Player2 spawn
+            	table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize-tilesize/2, y = ty+(i-1)*tilesize-tilesize/2, w = tilesize*2, h = tilesize*2, type = 'start2'})
+                world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
             	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'bg'})
-            	playerstart.x = tx+(j-1)*tilesize
-            	playerstart.y = ty+(i-1)*tilesize
+            	if nextmap == true then
+            		playerstart.x = tx+(j-1)*tilesize
+            		playerstart.y = ty+(i-1)*tilesize
+            	end
             elseif map[i][j] == 10 then --Player1 end
             	table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize-tilesize/2, y = ty+(i-1)*tilesize-tilesize/2, w = tilesize*2, h = tilesize*2, type = 'end1'})
                 world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
+                if nextmap == false then
+            		playerstart.x = tx+(j-1)*tilesize
+            		playerstart.y = ty+(i-1)*tilesize
+            	end
             elseif map[i][j] == 12 then --Player2 end
             	table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize-tilesize/2, y = ty+(i-1)*tilesize-tilesize/2, w = tilesize*2, h = tilesize*2, type = 'end2'})
                 world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
-            
+            	if nextmap == false then
+            		playerstart.x = tx+(j-1)*tilesize
+            		playerstart.y = ty+(i-1)*tilesize
+            	end
             elseif map[i][j] == 3 then --Trigger1 för block spelare 1
             	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'end1door'})
                 world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)

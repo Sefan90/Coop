@@ -25,4 +25,8 @@ function func.tablecheck(table,value)
 	return false
 end
 
+function func.mod(a,b)
+  return a - math.floor(a/b)*b
+end
+
 return func

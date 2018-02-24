@@ -38,21 +38,21 @@ function player.move(player,dt,world)
 	    end
 	else
 		if love.keyboard.isDown(player.up) and player.jump == false then
-			player.jumptime = player.jumptime + 1
+			player.jumptime = player.jumptime - player.speed
 			player.jump = true
 		end
-	    if love.keyboard.isDown(player.down) and player.jump == true then
-	    	player.jumptime = player.jumptime - 0.1
+	    if love.keyboard.isDown(player.down) then
+	    	player.jumptime = player.jumptime + player.speed*2*dt
 	    end
-	    if player.jump == true then
-	    	player.jumptime = player.jumptime - 0.0006
-	    	if player.jumptime < 0 then
-	    		player.jumptime = 0
-	    	end
-	    end
-		local actualX, actualY, cols, len = world:move(player, player.x, player.y + player.speed*dt*(-player.jumptime+1) - player.speed*dt*(player.jumptime), playerFilter)
-		if actualY == player.y and player.jumptime == 0 then
+	    if player.jumptime <= -player.speed/2 then
+	    	player.jumptime = player.jumptime + player.speed/1.6*dt
+		else
+			player.jumptime = player.jumptime + player.speed*2*dt
+		end
+		local actualX, actualY, cols, len = world:move(player, player.x, player.y + player.jumptime*dt, playerFilter)
+		if actualY == player.y then
 			player.jump = false
+			player.jumptime = 0
 		end
 	  	player.x, player.y = actualX, actualY
 	end
@@ -67,7 +67,12 @@ function player.drawplayers(objects)
     	else
     		love.graphics.setColor(0, 127, 127)
     	end
-        love.graphics.rectangle('fill', objects[i].x, objects[i].y, objects[i].w, objects[i].h)
+        love.graphics.rectangle('fill', objects[i].x, objects[i].y, objects[i].w, objects[i].h, objects[i].w/5, objects[i].h/5,objects[i].w)
+        --for x = 0, objects[i].w-1 do
+        --	for y = 0, objects[i].h-1 do
+        --		love.graphics.draw(image,objects[i].x+x,objects[i].y+y)
+        --	end
+        --end
         love.graphics.setColor(255, 255, 255)
     end
 end
@@ -77,10 +82,19 @@ function player.checkmap(player,world)
 	for i=1,len do
     	local other = cols[i].other
     	if other.type == 'end1' or other.type == 'end2' then
-    		return true
+    		return 'end'
+    	elseif other.type == 'start1' or other.type == 'start2' then
+    		return 'start'
     	end
     end
-    return false
+    return ''
+end
+
+function player.outsideofmap(player,mapsize,tilesize)
+	if player.x < 0 or player.x > mapsize.x*tilesize or player.y < 0 or player.y > mapsize.y*tilesize then
+		return true
+	end
+	return false
 end
 
 playerFilter = function(item, other)
@@ -100,11 +114,13 @@ playerFilter = function(item, other)
 	elseif other.type == 'player1door2' and other.active == true then return 'cross'
 	elseif other.type == 'box2door2' and other.active == true then return 'cross'
 	elseif other.type == 'player2door2' and other.active == true then return 'cross'
+  	elseif other.type == 'start1' then return 'cross'
+ 	elseif other.type == 'start2' then return 'cross'
   	elseif other.type == 'end1' then return 'cross'
  	elseif other.type == 'end2' then return 'cross'
  	elseif other.type == 'end1door' and other.active == true then return 'cross'
  	elseif other.type == 'end2door' and other.active == true then return 'cross'
-  	else return 'touch'
+  	else return 'slide'
   	end
 end
 
