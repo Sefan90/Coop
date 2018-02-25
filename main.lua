@@ -5,7 +5,8 @@ local func = require 'func'
 local salg = require 'salg'
 local bump = require 'bump'
 local loadmap = require 'loadmap'
-require 'autobatch'
+local menu = require 'menu'
+--require 'autobatch' -- Kolla om den hjälper eller inte
 
 local mapsize = {x=48,y=36}
 local width, height = love.graphics.getDimensions()
@@ -17,6 +18,7 @@ local players = {
     {name = 'p1', x = 0, y = 0, w = tilesize*2, h = tilesize*2, speed = tilesize*5, jump = true, jumptime = 0, up = 'w', left = 'a', down = 's', right = 'd', nextlevel = 'q', nextlevelpressed = false, reload = 'r', reloadpressed = false, flying = true, alive = true, level = 1},
     {name = 'p2', x = 0, y = 0, w = tilesize*2, h = tilesize*2, speed = tilesize*5, jump = true, jumptime = 0, up = 'up', left = 'left', down = 'down', right = 'right', nextlevel = 'p', nextlevelpressed = false, reload = 'i', reloadpressed = false, flying = false, alive = true, level = 1}
 }
+esc = {button = 'escape', active = false}
 world[1]:add(players[1],players[1].x,players[1].y,players[1].w,players[1].h)
 world[2]:add(players[2],players[2].x,players[2].y,players[2].w,players[2].h)
 --love.image.newImageData(1,1)
@@ -46,52 +48,57 @@ function love.load()
 end
 
 function love.update(dt)
-    for i = 1, #players do
-        if players[i].nextlevelpressed and (player.checkmap(players[i],world[i]) == 'end' or (player.checkmap(players[i],world[i]) == 'start' and players[i].level ~= 1 and players[i].level ~= 2)) then
-            players[i].nextlevelpressed = false
-            if (i == 1 and player.checkmap(players[1],world[1]) == 'end' and players[1].level+1-players[2].level >= -1 and players[1].level+1-players[2].level <= 1)
-            or (i == 1 and player.checkmap(players[1],world[1]) == 'start' and players[1].level-1-players[2].level >= -1 and players[1].level-1-players[2].level <= 1)
-            or (i == 2 and player.checkmap(players[2],world[2]) == 'end' and players[2].level+1-players[1].level >= -1 and players[2].level+1-players[1].level <= 1)
-            or (i == 2 and player.checkmap(players[2],world[2]) == 'start' and players[2].level-1-players[1].level >= -1 and players[2].level-1-players[1].level <= 1) then
-                for j = 1, #movingobjects do --Öppnar dörr när en spelare byter bana
-                    for k = 1, #movingobjects[j] do
-                        if (i == 1 and movingobjects[j][k].type == 'end1door') or (i == 2 and movingobjects[j][k].type == 'end2door') then
-                            movingobjects[j][k].active = true
+    if esc.active == false then
+        for i = 1, #players do
+            if players[i].nextlevelpressed and (player.checkmap(players[i],world[i]) == 'end' or (player.checkmap(players[i],world[i]) == 'start' and players[i].level ~= 1 and players[i].level ~= 2)) then
+                players[i].nextlevelpressed = false
+                if (i == 1 and player.checkmap(players[1],world[1]) == 'end' and players[1].level+1-players[2].level >= -1 and players[1].level+1-players[2].level <= 1)
+                or (i == 1 and player.checkmap(players[1],world[1]) == 'start' and players[1].level-1-players[2].level >= -1 and players[1].level-1-players[2].level <= 1)
+                or (i == 2 and player.checkmap(players[2],world[2]) == 'end' and players[2].level+1-players[1].level >= -1 and players[2].level+1-players[1].level <= 1)
+                or (i == 2 and player.checkmap(players[2],world[2]) == 'start' and players[2].level-1-players[1].level >= -1 and players[2].level-1-players[1].level <= 1) then
+                    for j = 1, #movingobjects do --Öppnar dörr när en spelare byter bana
+                        for k = 1, #movingobjects[j] do
+                            if (i == 1 and movingobjects[j][k].type == 'end1door') or (i == 2 and movingobjects[j][k].type == 'end2door') then
+                                movingobjects[j][k].active = true
+                            end
                         end
                     end
+                    if player.checkmap(players[i],world[i]) == 'end' then
+                        playerstart, bgobjects[i], objects[i], movingobjects[i] = loadmap.nextmap(players[i],objects[i],movingobjects[i],0,0,tilesize,world[i])
+                    else
+                        playerstart, bgobjects[i], objects[i], movingobjects[i] = loadmap.previousmap(players[i],objects[i],movingobjects[i],0,0,tilesize,world[i])
+                    end
+                    objectcavanas[i] = love.graphics.newCanvas(width,height)
+                    love.graphics.setCanvas(objectcavanas[i])
+                    object.drawobjects(bgobjects[i])
+                    object.drawobjects(objects[i])
+                    love.graphics.setCanvas()
+                    world[i]:update(players[i],playerstart.x,playerstart.y)
+                    players[i].jump = true --För att man inte ska kunna hopps om man spawnar i luften.
                 end
-                if player.checkmap(players[i],world[i]) == 'end' then
-                    playerstart, bgobjects[i], objects[i], movingobjects[i] = loadmap.nextmap(players[i],objects[i],movingobjects[i],0,0,tilesize,world[i])
-                else
-                    playerstart, bgobjects[i], objects[i], movingobjects[i] = loadmap.previousmap(players[i],objects[i],movingobjects[i],0,0,tilesize,world[i])
-                end
+            elseif players[i].reloadpressed or player.outsideofmap(players[i],mapsize,tilesize) then
+                 players[i].reloadpressed = false
+                playerstart, bgobjects[i], objects[i], movingobjects[i] = loadmap.reloadmap(players[i],objects[i],movingobjects[i],0,0,tilesize,world[i])
                 objectcavanas[i] = love.graphics.newCanvas(width,height)
                 love.graphics.setCanvas(objectcavanas[i])
                 object.drawobjects(bgobjects[i])
                 object.drawobjects(objects[i])
                 love.graphics.setCanvas()
                 world[i]:update(players[i],playerstart.x,playerstart.y)
+                players[i].x = playerstart.x
+                players[i].y = playerstart.y
                 players[i].jump = true --För att man inte ska kunna hopps om man spawnar i luften.
             end
-        elseif players[i].reloadpressed or player.outsideofmap(players[i],mapsize,tilesize) then
-            playerstart, bgobjects[i], objects[i], movingobjects[i] = loadmap.reloadmap(players[i],objects[i],movingobjects[i],0,0,tilesize,world[i])
-            objectcavanas[i] = love.graphics.newCanvas(width,height)
-            love.graphics.setCanvas(objectcavanas[i])
-            object.drawobjects(bgobjects[i])
-            object.drawobjects(objects[i])
-            love.graphics.setCanvas()
-            world[i]:update(players[i],playerstart.x,playerstart.y)
-            players[i].x = playerstart.x
-            players[i].y = playerstart.y
-            players[i].jump = true --För att man inte ska kunna hopps om man spawnar i luften.
         end
-    end
-    for i = 1, #players do
-        for j = 1, #movingobjects[i] do
-            object.fall(movingobjects[i][j],tilesize,dt,world[i])
-            object.check(movingobjects[i][j], movingobjects, world[i])
+        for i = 1, #players do
+            for j = 1, #movingobjects[i] do
+                object.fall(movingobjects[i][j],tilesize,dt,world[i])
+                object.check(movingobjects[i][j], movingobjects, world[i])
+            end
+            players[i] = player.move(players[i],dt,world[i])
         end
-        players[i] = player.move(players[i],dt,world[i])
+    else
+        menu.update(players,esc)
     end
 end
 
@@ -107,6 +114,10 @@ function love.draw()
     love.graphics.print(love.graphics.getStats().drawcalls,0,20)
     love.graphics.print(players[1].x..' '..players[1].y,0,40)
     love.graphics.print(players[2].x..' '..players[2].y,0,60)
+     love.graphics.print(tostring(not esc.active),0,80)
+    if esc.active == true then
+        menu.draw()
+    end
 end
 
 --Bygg en bana att testa på.
@@ -116,9 +127,18 @@ function love.keypressed(key, scancode, isrepeat)
     for i = 1, #players do
         if key == players[i].nextlevel then
             players[i].nextlevelpressed = true
-        end
-        if key == players[i].reload then
+        elseif key == players[i].reload then
             players[i].reloadpressed = true
+        end
+    end
+    if key == esc.button then
+        esc.active = not esc.active
+    end
+    if esc.active == true then
+        if (love.keyboard.isDown(players[1].up) or love.keyboard.isDown(players[2].up)) and menu.selected ~= 0 then
+            menu.selected = menu.selected-1
+        elseif (love.keyboard.isDown(players[1].down) or love.keyboard.isDown(players[2].down)) and menu.selected ~= 3 then
+            menu.selected = menu.selected+1
         end
     end
 end

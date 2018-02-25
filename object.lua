@@ -9,8 +9,26 @@ local object = {
 
 local function objectshape(object)
 	if object.type == 'bg' then
-		love.graphics.setColor(127, 127, 127)
-		love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+		if object.position[2] == true then
+			love.graphics.setColor(127, 127, 127)
+			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+			--love.graphics.setColor(64, 64, 64)
+			--love.graphics.rectangle('fill', object.x, object.y, object.w, object.h/8)
+		elseif object.position[4] ~= true then
+			love.graphics.setColor(127, 127, 127)
+			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+		elseif object.position[5] ~= true then
+			love.graphics.setColor(127, 127, 127)
+			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+			--love.graphics.setColor(64, 64, 64)
+			--love.graphics.rectangle('fill', object.x, object.y, object.w/8, object.h)
+		elseif object.position[7] ~= true then
+			love.graphics.setColor(127, 127, 127)
+			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+		else
+			love.graphics.setColor(127, 127, 127)
+			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+		end
 	elseif object.type == 'end1' or object.type == 'end2' or object.type == 'start1' or object.type == 'start2' then
 		love.graphics.setColor(0, 127, 191)
 		love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
@@ -160,45 +178,45 @@ local function objectshape(object)
 end
 
 function object.position(map,i,j)
-	if map[i][j] == 0 then
+	if map[i][j] == 2 then
 	    local position = {false,false,false,false,false,false,false,false}
 	    if i ~= 1 and j ~= 1 then
-	        if map[i-1][j-1] ~= 0 then
+	        if map[i-1][j-1] == 1 then
 	            position[1] = true
 	        end
 	    end
 	    if i ~= 1 then
-	        if map[i-1][j] ~= 0 then
+	        if map[i-1][j] == 1 then
 	            position[2] = true
 	        end
 	    end
 	    if i ~= 1 and j ~= #map[i] then
-	        if map[i-1][j+1] ~= 0 then
+	        if map[i-1][j+1] == 1 then
 	            position[3] = true
 	        end
 	    end
 	    if j ~= 1 then
-	        if map[i][j-1] ~= 0 then
+	        if map[i][j-1] == 1 then
 	            position[4] = true
 	        end
 	    end
 	    if j ~= #map[i] then 
-	        if map[i][j+1] ~= 0 then
+	        if map[i][j+1] == 1 then
 	            position[5] = true
 	        end
 	    end
 	    if i ~= #map and j ~= 1 then
-	        if map[i+1][j-1] ~= 0 then
+	        if map[i+1][j-1] == 1 then
 	            position[6] = true
 	        end
 	    end
 	    if i ~= #map  then
-	        if map[i+1][j] ~= 0 then
+	        if map[i+1][j] == 1 then
 	            position[7] = true
 	        end
 	    end
 	    if i ~= #map and j ~= #map[i] then
-	        if map[i+1][j+1] ~= 0 then
+	        if map[i+1][j+1] == 1 then
 	            position[8] = true
 	        end
 	    end
@@ -228,7 +246,7 @@ function object.createmovingobjects(nextmap,map,gravity,tx,ty,tilesize,world)
 	for i = 1, #map do
         for j = 1, #map[i] do
         	if map[i][j] == 2 then --Background
-        		table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'bg'})
+        		table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, position = object.position(map,i,j), type = 'bg'})
         	elseif map[i][j] == 0 then
                 table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'outside'})
                 world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
@@ -236,17 +254,17 @@ function object.createmovingobjects(nextmap,map,gravity,tx,ty,tilesize,world)
                 table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'wall'})
                 world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
             elseif map[i][j] == 8 then --Block spelare 1
-            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'bg'})
+            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, position = object.position(map,i,j), h = tilesize, type = 'bg'})
                 table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize*2, h = tilesize*2, gravity = gravity, type = 'blockplayer1'})
                 world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
             elseif map[i][j] == 13 then --Block spelar 2
-            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'bg'})
+            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, position = object.position(map,i,j), h = tilesize, type = 'bg'})
                 table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize*2, h = tilesize*2, gravity = gravity, type = 'blockplayer2'})
                 world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
             elseif map[i][j] == 9 then --Player1 spawn
             	table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize-tilesize/2, y = ty+(i-1)*tilesize-tilesize/2, w = tilesize*2, h = tilesize*2, type = 'start1'})
                 world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
-            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'bg'})
+            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, position = object.position(map,i,j), h = tilesize, type = 'bg'})
             	if nextmap == true then
             		playerstart.x = tx+(j-1)*tilesize
             		playerstart.y = ty+(i-1)*tilesize
@@ -254,7 +272,7 @@ function object.createmovingobjects(nextmap,map,gravity,tx,ty,tilesize,world)
             elseif map[i][j] == 11 then --Player2 spawn
             	table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize-tilesize/2, y = ty+(i-1)*tilesize-tilesize/2, w = tilesize*2, h = tilesize*2, type = 'start2'})
                 world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
-            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'bg'})
+            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, position = object.position(map,i,j), type = 'bg'})
             	if nextmap == true then
             		playerstart.x = tx+(j-1)*tilesize
             		playerstart.y = ty+(i-1)*tilesize
