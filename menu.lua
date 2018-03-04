@@ -1,47 +1,55 @@
+local camera = require 'camera'
 local func = require 'func'
-
 local menu = {}
-menu.selected = 0
 
-local mapsize = {x=48,y=36}
-local width, height = love.graphics.getDimensions()
-local tilesize = func.getTileSize(width,height,mapsize)
+function menu.load()
+    mapsize = {x=48,y=36}
+    width, height = love.graphics.getDimensions()
+    tilesize = func.getTileSize(width,height,mapsize)
+    tx = (width-tilesize*mapsize.x)/2
+    ty = (height-tilesize*mapsize.y)/2
+    xsize = width-tx*2
+    ysize = height-ty*2
+	menu.state = 1
+	menu.selected = 0
+	camera1 = camera.new(tx,ty,tx,ty,width,height)
+end
 
-function menu.update(players,esc)
-	if love.keyboard.isDown(players[1].nextlevel) or love.keyboard.isDown(players[2].nextlevel) then
+function menu.update()
+	if love.keyboard.isDown('return') then
 		if menu.selected == 0 then
-			--Paused/resume
-			esc.active = false
+			--Play
 		elseif menu.selected == 1 then
-			--Restart
-			players[1].reloadpressed = true
-			players[2].reloadpressed = true
-			esc.active = false
+			--Options
 		elseif menu.selected == 2 then
-			--Save
+			--Credits
 		elseif menu.selected == 3 then
-			--Save and exit
+			--Exit
 		end
 	end
 end
 
 function menu.draw()
-	love.graphics.setColor(255, 255, 255)
-	love.graphics.rectangle('fill', width/5*2, height/3-tilesize/2, width/5, height/3+tilesize)
-	for i = 0, 3 do
-		if i == menu.selected then
-			love.graphics.setColor(0, 255, 0)
-		else
-			love.graphics.setColor(0, 0, 0)
-		end
-		love.graphics.rectangle('fill', width/5*2+tilesize, height/3+tilesize*(0.5+i*3), width/5-tilesize*2, tilesize*2)
+	camera1:set()
+	love.graphics.setShader(myShader)
+	love.graphics.rectangle('fill', tilesize, ysize/3, xsize-tilesize*2, ysize/3)
+	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.rectangle('fill', tilesize*2, ysize/3+tilesize, xsize/3-tilesize*2, ysize/3-tilesize*2)
+	love.graphics.rectangle('fill', xsize/3+tilesize, ysize/3+tilesize, xsize/3-tilesize*2, ysize/3-tilesize*2)
+	love.graphics.rectangle('fill', xsize/3*2, ysize/3+tilesize, xsize/3-tilesize*2, ysize/3-tilesize*2)
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.print('Press enter to start', xsize/2, ysize/2)
+	love.graphics.setShader()
+	camera1:unset()
+	--Play
+	--Options
+	--Exit
+end
+
+function menu.keypressed(key)
+	if key == 'return' then
+		load_state(require 'game')
 	end
-	love.graphics.setColor(255, 255, 255)
 end
 
 return menu
-
-	-- love.graphics.print('PAUSED', width/3+width/6, height/3+tilesize)
-	-- love.graphics.print('RESTART', width/3+width/6, height/3+tilesize*2)
-	-- love.graphics.print('SAVE', width/3+width/6, height/3+tilesize*3)
-	-- love.graphics.print('SAVE and exit', width/3+width/6, height/3+tilesize*4)

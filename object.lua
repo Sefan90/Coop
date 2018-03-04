@@ -32,6 +32,8 @@ local function objectshape(object)
 	elseif object.type == 'end1' or object.type == 'end2' or object.type == 'start1' or object.type == 'start2' then
 		love.graphics.setColor(0, 127, 191)
 		love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+		love.graphics.setColor(255, 255, 255)
+		love.graphics.circle('fill', object.x+object.w/2, object.y+object.w/2, object.w/2)
 	elseif object.type == 'end1door' or object.type == 'end2door' then
 		if object.active == false then
 			love.graphics.setColor(0, 127, 191)
