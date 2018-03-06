@@ -24,11 +24,11 @@ local function loadlevel(player)
 		gravity = true
 	end
 	local map2d = {}
-	for i = 1, 48 do
+	for i = 1, mapsize.x do
 		map2d[i] = {}
 	end
 	for i = 1, #map1d do
-		map2d[math.floor((i - 1) / 48) + 1][math.floor((i - 1) % 48) + 1] = map1d[i]
+		map2d[math.floor((i - 1) / mapsize.x) + 1][math.floor((i - 1) % mapsize.x) + 1] = map1d[i]
 	end
 	return map2d, gravity
 end

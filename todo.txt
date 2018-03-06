@@ -1,0 +1,14 @@
+ToDo:
+Ny atlas som är 160x160 (10x10 bilder) Måste Fixas
+Ny map som är 24*18 (med 16x16p bilder) DONE
+Bygg in så man kan rotera bilder (kolla sti kod) DONE
+
+Gör så kartan är hälften så många tiles och programera in subtiles istället.
+24*18 där varje subtile är 2x2 eller 3x3.
+https://suddenlygames.tumblr.com/post/131842492403/tutorial-1-blending-different-types-of-tiles
+
+color:
+https://gamedevelopment.tutsplus.com/articles/picking-a-color-palette-for-your-games-artwork--gamedev-1174
+https://love2d.org/wiki/HSL_color (256 ska vara 260 istället)
+https://love2d.org/forums/viewtopic.php?t=2126
+http://paletton.com/#uid=1000u0knjjEcEugicoLsyep-Y9e

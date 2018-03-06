@@ -12,7 +12,7 @@ local function moveplayer(player,x,y,dt,world)
 	local actualX, actualY, cols, len = world:check(player, player.x+x, player.y+y, playerFilter)
 	for i=1,len do
     	local other = cols[i].other
-    	if other.type == 'blockplayer1' or other.type == 'blockplayer2' then
+    	if other.type == 'box' then
     		object.move(other,x,y,world)
     	end
     end
@@ -61,20 +61,9 @@ function player.move(player,dt,world)
 end
 
 function player.drawplayers(objects)
-    for i = 1, #objects do
-    	if i == 1 then
-			love.graphics.setColor(0, 127, 0)
-    	else
-    		love.graphics.setColor(0, 127, 127)
-    	end
-        love.graphics.rectangle('fill', objects[i].x, objects[i].y, objects[i].w, objects[i].h, objects[i].w/5, objects[i].h/5,objects[i].w)
-        --for x = 0, objects[i].w-1 do
-        --	for y = 0, objects[i].h-1 do
-        --		love.graphics.draw(image,objects[i].x+x,objects[i].y+y)
-        --	end
-        --end
-        love.graphics.setColor(255, 255, 255)
-    end
+    love.graphics.setColor(255, 255, 255)
+    --love.graphics.rectangle('fill', objects.x, objects.y, objects.w, objects.h, objects.w/5, objects.h/5,objects.w)
+    love.graphics.draw(atlas.img,atlas.player,objects.x, objects.y,0,tilesize/16,tilesize/16)
 end
 
 function player.checkmap(player,world)
@@ -90,7 +79,14 @@ function player.checkmap(player,world)
     return ''
 end
 
-function player.outsideofmap(player,mapsize,tilesize)
+function player.outsideofmap(player,mapsize,tilesize,world)
+	local actualX, actualY, cols, len = world:check(player, player.x + 1, player.y, playerFilter)
+	for i=1,len do
+    	local other = cols[i].other
+    	if other.type == 'outside' then
+    		return true
+    	end
+    end
 	if player.x < 0 or player.x > mapsize.x*tilesize or player.y < 0 or player.y > mapsize.y*tilesize then
 		return true
 	end
@@ -120,7 +116,7 @@ playerFilter = function(item, other)
  	elseif other.type == 'end2' then return 'cross'
  	elseif other.type == 'end1door' and other.active == true then return 'cross'
  	elseif other.type == 'end2door' and other.active == true then return 'cross'
-  	else return 'slide'
+  	else return 'touch'
   	end
 end
 

@@ -11,15 +11,15 @@ local ingamemenu = require 'ingamemenu'
 local game = {}
 
 function game.load()
-    mapsize = {x=48,y=36}
+    mapsize = {x=24,y=18}
     width, height = love.graphics.getDimensions()
     tilesize = func.getTileSize(width,height,mapsize)
     world = {bump.newWorld(tilesize), bump.newWorld(tilesize)}
     tx = (width-tilesize*mapsize.x)/2
     ty = (height-tilesize*mapsize.y)/2
     players = {
-        {name = 'p1', x = 0, y = 0, w = tilesize*2, h = tilesize*2, speed = tilesize*5, jump = true, jumptime = 0, up = 'w', left = 'a', down = 's', right = 'd', nextlevel = 'q', nextlevelpressed = false, reload = 'r', reloadpressed = false, flying = true, alive = true, level = 1},
-        {name = 'p2', x = 0, y = 0, w = tilesize*2, h = tilesize*2, speed = tilesize*5, jump = true, jumptime = 0, up = 'up', left = 'left', down = 'down', right = 'right', nextlevel = 'p', nextlevelpressed = false, reload = 'i', reloadpressed = false, flying = false, alive = true, level = 1}
+        {name = 'p1', x = 0, y = 0, w = tilesize, h = tilesize, speed = tilesize*3, jump = true, jumptime = 0, up = 'w', left = 'a', down = 's', right = 'd', nextlevel = 'q', nextlevelpressed = false, reload = 'r', reloadpressed = false, flying = true, alive = true, level = 0},
+        {name = 'p2', x = 0, y = 0, w = tilesize, h = tilesize, speed = tilesize*3, jump = true, jumptime = 0, up = 'up', left = 'left', down = 'down', right = 'right', nextlevel = 'p', nextlevelpressed = false, reload = 'i', reloadpressed = false, flying = false, alive = true, level = 0}
     }
     esc = {button = 'escape', active = false}
     world[1]:add(players[1],players[1].x,players[1].y,players[1].w,players[1].h)
@@ -77,7 +77,7 @@ function game.update(dt)
                     world[i]:update(players[i],playerstart.x,playerstart.y)
                     players[i].jump = true --För att man inte ska kunna hopps om man spawnar i luften.
                 end
-            elseif players[i].reloadpressed or player.outsideofmap(players[i],mapsize,tilesize) then
+            elseif players[i].reloadpressed or player.outsideofmap(players[i],mapsize,tilesize,world[i]) then
                  players[i].reloadpressed = false
                 playerstart, bgobjects[i], objects[i], movingobjects[i] = loadmap.reloadmap(players[i],objects[i],movingobjects[i],0,0,tilesize,world[i])
                 objectcavanas[i] = love.graphics.newCanvas(width,height)
@@ -106,10 +106,23 @@ end
 function game.draw()
     camera1:set()
     for i = 1, #players do
+        if i == 1 then
+            myShader:send('color1', {147,100,209,255})
+            myShader:send('color2', {108,70,158,255})
+            myShader:send('color3', {77,47,117,255})
+            myShader:send('color4', {48,28,76,255})
+        else
+            myShader:send('color1', {233,172,91,255})
+            myShader:send('color2', {172,124,60,255})
+            myShader:send('color3', {112,79,35,255})
+            myShader:send('color4', {51,35,14,255})
+        end
+        love.graphics.setShader(myShader)
         love.graphics.draw(objectcavanas[i], 0, 0)
         object.drawobjects(movingobjects[i])
+        player.drawplayers(players[i])
+        love.graphics.setShader()
     end
-    player.drawplayers(players)
     camera1:unset()
     love.graphics.print(love.timer.getFPS(),0,0)
     love.graphics.print(love.graphics.getStats().drawcalls,0,20)
