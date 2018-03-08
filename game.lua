@@ -18,8 +18,8 @@ function game.load()
     tx = (width-tilesize*mapsize.x)/2
     ty = (height-tilesize*mapsize.y)/2
     players = {
-        {name = 'p1', x = 0, y = 0, w = tilesize, h = tilesize, speed = tilesize*3, jump = true, jumptime = 0, up = 'w', left = 'a', down = 's', right = 'd', nextlevel = 'q', nextlevelpressed = false, reload = 'r', reloadpressed = false, flying = true, alive = true, level = 0},
-        {name = 'p2', x = 0, y = 0, w = tilesize, h = tilesize, speed = tilesize*3, jump = true, jumptime = 0, up = 'up', left = 'left', down = 'down', right = 'right', nextlevel = 'p', nextlevelpressed = false, reload = 'i', reloadpressed = false, flying = false, alive = true, level = 0}
+        {name = 'p1', x = 0, y = 0, w = tilesize, h = tilesize, speed = tilesize*3, jump = true, jumptime = 0, up = 'w', left = 'a', down = 's', right = 'd', nextlevel = 'q', nextlevelpressed = false, reload = 'r', reloadpressed = false, flying = true, alive = true, level = -1},
+        {name = 'p2', x = 0, y = 0, w = tilesize, h = tilesize, speed = tilesize*3, jump = true, jumptime = 0, up = 'up', left = 'left', down = 'down', right = 'right', nextlevel = 'p', nextlevelpressed = false, reload = 'i', reloadpressed = false, flying = false, alive = true, level = -1}
     }
     esc = {button = 'escape', active = false}
     world[1]:add(players[1],players[1].x,players[1].y,players[1].w,players[1].h)

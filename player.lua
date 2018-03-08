@@ -12,7 +12,7 @@ local function moveplayer(player,x,y,dt,world)
 	local actualX, actualY, cols, len = world:check(player, player.x+x, player.y+y, playerFilter)
 	for i=1,len do
     	local other = cols[i].other
-    	if other.type == 'box' then
+    	if other.id == 11 then
     		object.move(other,x,y,world)
     	end
     end
@@ -70,9 +70,9 @@ function player.checkmap(player,world)
 	local actualX, actualY, cols, len = world:check(player, player.x + 1, player.y, playerFilter)
 	for i=1,len do
     	local other = cols[i].other
-    	if other.type == 'end1' or other.type == 'end2' then
+    	if other.id == 13 or other.id == 15 then
     		return 'end'
-    	elseif other.type == 'start1' or other.type == 'start2' then
+    	elseif other.id == 12 or other.id == 14 then
     		return 'start'
     	end
     end
@@ -83,7 +83,7 @@ function player.outsideofmap(player,mapsize,tilesize,world)
 	local actualX, actualY, cols, len = world:check(player, player.x + 1, player.y, playerFilter)
 	for i=1,len do
     	local other = cols[i].other
-    	if other.type == 'outside' then
+    	if other.id == 0 then
     		return true
     	end
     end
@@ -94,28 +94,28 @@ function player.outsideofmap(player,mapsize,tilesize,world)
 end
 
 playerFilter = function(item, other)
-	if other.type == 'box1trigger1' then return 'cross'
-	elseif other.type == 'player1trigger1' then return 'cross'
-	elseif other.type == 'box2trigger1' then return 'cross'
-	elseif other.type == 'player2trigger1' then return 'cross'
-	elseif other.type == 'box1trigger2' then return 'cross'
-	elseif other.type == 'player1trigger2' then return 'cross'
-	elseif other.type == 'box2trigger2' then return 'cross'
-	elseif other.type == 'player2trigger2' then return 'cross'
-	elseif other.type == 'box1door1' and other.active == true then return 'cross'
-	elseif other.type == 'player1door1' and other.active == true then return 'cross'
-	elseif other.type == 'box2door1' and other.active == true then return 'cross'
-	elseif other.type == 'player2door1' and other.active == true then return 'cross'
-	elseif other.type == 'box1door2' and other.active == true then return 'cross'
-	elseif other.type == 'player1door2' and other.active == true then return 'cross'
-	elseif other.type == 'box2door2' and other.active == true then return 'cross'
-	elseif other.type == 'player2door2' and other.active == true then return 'cross'
-  	elseif other.type == 'start1' then return 'cross'
- 	elseif other.type == 'start2' then return 'cross'
-  	elseif other.type == 'end1' then return 'cross'
- 	elseif other.type == 'end2' then return 'cross'
- 	elseif other.type == 'end1door' and other.active == true then return 'cross'
- 	elseif other.type == 'end2door' and other.active == true then return 'cross'
+	if other.id == 21 then return 'cross'
+	elseif other.id == 22 then return 'cross'
+	elseif other.id == 23 then return 'cross'
+	elseif other.id == 24 then return 'cross'
+	elseif other.id == 25 then return 'cross'
+	elseif other.id == 26 then return 'cross'
+	elseif other.id == 27 then return 'cross'
+	elseif other.id == 28 then return 'cross'
+	elseif other.id == 31 and other.active == true then return 'cross'
+	elseif other.id == 32 and other.active == true then return 'cross'
+	elseif other.id == 33 and other.active == true then return 'cross'
+	elseif other.id == 34 and other.active == true then return 'cross'
+	elseif other.id == 35 and other.active == true then return 'cross'
+	elseif other.id == 36 and other.active == true then return 'cross'
+	elseif other.id == 37 and other.active == true then return 'cross'
+	elseif other.id == 38 and other.active == true then return 'cross'
+  	elseif other.id == 12 then return 'cross'
+ 	elseif other.id == 13 then return 'cross'
+  	elseif other.id == 14 then return 'cross'
+ 	elseif other.id == 15 then return 'cross'
+ 	--elseif other.id == 'end1door' and other.active == true then return 'cross'
+ 	--elseif other.id == 'end2door' and other.active == true then return 'cross'
   	else return 'touch'
   	end
 end

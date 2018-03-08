@@ -10,16 +10,18 @@ end
 function love.load()
     love.graphics.setDefaultFilter('nearest','nearest')
     atlas = {}
-    atlas.img = love.graphics.newImage("/maps/img/16bit.png")
-    atlas.player = love.graphics.newQuad(64, 0, 16, 16, atlas.img:getDimensions())
-    atlas.box = love.graphics.newQuad(64, 16, 16, 16, atlas.img:getDimensions())
-    atlas.trigger = love.graphics.newQuad(80, 0, 16, 16, atlas.img:getDimensions())
-    atlas.trigger_active = love.graphics.newQuad(96, 0, 16, 16, atlas.img:getDimensions())
-    atlas.exit = love.graphics.newQuad(80, 16, 16, 16, atlas.img:getDimensions())
-    atlas.door = love.graphics.newQuad(16, 16, 16, 16, atlas.img:getDimensions())
+    atlas.img = love.graphics.newImage("/maps/img/18bitingame.png")
+    atlas.player = love.graphics.newQuad(91, 19, 16, 16, atlas.img:getDimensions())
+    --atlas.box = love.graphics.newQuad(64, 16, 16, 16, atlas.img:getDimensions())
+    --atlas.trigger = love.graphics.newQuad(80, 0, 16, 16, atlas.img:getDimensions())
+    --atlas.trigger_active = love.graphics.newQuad(96, 0, 16, 16, atlas.img:getDimensions())
+    --atlas.exit = love.graphics.newQuad(80, 16, 16, 16, atlas.img:getDimensions())
+    --atlas.exit2 = love.graphics.newQuad(96, 16, 16, 16, atlas.img:getDimensions())
+    --atlas.door = love.graphics.newQuad(16, 16, 16, 16, atlas.img:getDimensions())
+    --atlas.border = love.graphics.newQuad(0, 48, 16, 16, atlas.img:getDimensions())
     atlas.draw = {}
     for i = 1, 100 do
-        table.insert(atlas.draw,love.graphics.newQuad(math.floor((i - 1) % 10)*16, math.floor((i - 1) / 10)*16, 16, 16, atlas.img:getDimensions()))
+        table.insert(atlas.draw,love.graphics.newQuad(math.floor((i - 1) % 10)*18+1, math.floor((i - 1) / 10)*18+1, 16, 16, atlas.img:getDimensions()))
     end
 
     myShader = love.graphics.newShader[[
