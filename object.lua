@@ -8,63 +8,35 @@ local object = {
 }
 
 local function objectshape(object)
-	if object.type == 'bg' then
-		if object.id >= 50 then
-			local tileX = object.x
-			local tileY = object.y
-			local origx = object.x
-			local origy = object.y
-			local compx = 0
-			local compy = 0
-			-- Compensation for scale/rotation shift
-			if object.sx < 0 then compx = tilesize end
-			if object.sy < 0 then compy = tilesize end
+	if object.id ~= 0 and object.id ~= 1 then
+		local tileX = object.x
+		local tileY = object.y
+		local origx = object.x
+		local origy = object.y
+		local compx = 0
+		local compy = 0
+		-- Compensation for scale/rotation shift
+		if object.sx < 0 then compx = tilesize end
+		if object.sy < 0 then compy = tilesize end
 
-			if object.r > 0 then
-				tileX = tileX + tilesize - compy
-				tileY = tileY + compx
-			elseif object.r < 0 then
-				tileX = tileX + compy
-				tileY = tileY - compx + tilesize
-			else
-				tileX = tileX + compx
-				tileY = tileY + compy
-			end
-			love.graphics.draw(atlas.img,atlas.draw[object.id-49],tileX,tileY,object.r,tilesize/16*object.sx,tilesize/16*object.sy)
+		if object.r > 0 then
+			tileX = tileX + tilesize - compy
+			tileY = tileY + compx
+		elseif object.r < 0 then
+			tileX = tileX + compy
+			tileY = tileY - compx + tilesize
 		else
-			love.graphics.setColor(127, 127, 127)
-			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+			tileX = tileX + compx
+			tileY = tileY + compy
 		end
-	elseif object.type == 'end1' or object.type == 'end2' or object.type == 'start1' or object.type == 'start2' then
-		love.graphics.draw(atlas.img,atlas.exit,object.x, object.y,0,tilesize/16,tilesize/16)
-	elseif object.type == 'end1door' or object.type == 'end2door' then
-		if object.active == false then
-			love.graphics.setColor(0, 127, 191)
-			love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
+		if object.id > 20 and object.id < 29 and object.active == true then
+			love.graphics.draw(atlas.img,atlas.draw[30],tileX,tileY,object.r,tilesize/16*object.sx,tilesize/16*object.sy)
+		elseif object.id > 30 and object.id < 40 and object.active == true then
+			love.graphics.draw(atlas.img,atlas.draw[2],tileX,tileY,object.r,tilesize/16*object.sx,tilesize/16*object.sy)
 		else
-			love.graphics.setColor(0, 127, 191)
-			love.graphics.rectangle('line', object.x, object.y, object.w, object.h)
+			love.graphics.draw(atlas.img,atlas.draw[object.id],tileX,tileY,object.r,tilesize/16*object.sx,tilesize/16*object.sy)
 		end
-	elseif object.type == 'box' then
-		love.graphics.draw(atlas.img,atlas.box,object.x, object.y,0,tilesize/16,tilesize/16)
-	elseif object.type == 'player2trigger1' or object.type == 'player2trigger2' or object.type == 'box2trigger1' or object.type == 'box2trigger2'
-	or object.type == 'player1trigger1' or object.type == 'player1trigger2'or object.type == 'box1trigger1' or object.type == 'box1trigger2'then
-		if object.active == false then
-			love.graphics.draw(atlas.img,atlas.trigger,object.x, object.y,0,tilesize/16,tilesize/16)
-		else
-			love.graphics.draw(atlas.img,atlas.trigger_active,object.x, object.y,0,tilesize/16,tilesize/16)
-		end
-		
-	elseif object.type == 'box1door1' or object.type == 'box1door2' or object.type == 'player1door1' or object.type == 'player1door2'
-	or object.type == 'box2door1' or object.type == 'box2door2' or object.type == 'player2door1' or  object.type == 'player2door2' then
-		if object.active == true then
-			love.graphics.draw(atlas.img,atlas.door,object.x, object.y,0,tilesize/16,tilesize/16)
-		end
-	else
-		love.graphics.setColor(127, 0, 0)
-		--love.graphics.rectangle('fill', object.x, object.y, object.w, object.h)
 	end
-	love.graphics.setColor(255, 255, 255)
 end
 
 local function setFlippedID(id)
@@ -124,33 +96,52 @@ local function setFlippedID(id)
 	return data
 end
 
-function object.position(map,i,j)
-	if map[i][j] == 2 then
-	    local position = {false,false,false,false}
-	    if i ~= 1 then
-	        if map[i-1][j] == 1 then
-	            position[1] = true
-	        end
-	    end
-	    if j ~= 1 then
-	        if map[i][j-1] == 1 then
-	            position[2] = true
-	        end
-	    end
-	    if j ~= #map[i] then 
-	        if map[i][j+1] == 1 then
-	            position[3] = true
-	        end
-	    end
-	    if i ~= #map  then
-	        if map[i+1][j] == 1 then
-	            position[4] = true
-	        end
-	    end
-	    return position
-	else
-		 return {true,true,true,true}
+local function subtiles(i,j,map,tx,ty,tilesize,data,world)
+	if data.r == 0 then
+	elseif data.r == math.rad(-90) then
 	end
+end
+
+local function createobject(i,j,map,tx,ty,tilesize,data)
+	return {
+		name ='x'..i..'y'..j, 
+		x = tx+(j-1)*tilesize, 
+		y = ty+(i-1)*tilesize, 
+		w = tilesize, 
+		h = tilesize, 
+		r = data.r, 
+		sx = data.sx, 
+		sy = data.sy, 
+		id = data.id, 
+		position = object.position(map,i,j),
+		gravity = data.gravity,
+		active = false
+	}
+end
+
+function object.position(map,i,j)
+    local position = {false,false,false,false}
+    if i ~= 1 then
+        if map[i-1][j] == 1 then
+            position[1] = true
+        end
+    end
+    if j ~= 1 then
+        if map[i][j-1] == 1 then
+            position[2] = true
+        end
+    end
+    if j ~= #map[i] then 
+        if map[i][j+1] == 1 then
+            position[3] = true
+        end
+    end
+    if i ~= #map  then
+        if map[i+1][j] == 1 then
+            position[4] = true
+        end
+    end
+    return position
 end
 
 function object.drawobjects(objects)
@@ -158,7 +149,7 @@ function object.drawobjects(objects)
         objectshape(objects[i])
     end
     for i = 1, #objects do --Så att boxar kommer över andra obejct i listan
-    	if objects[i].type == 'box' then
+    	if objects[i].id == 11 then
         	objectshape(objects[i])
         end
     end
@@ -173,113 +164,29 @@ function object.createmovingobjects(nextmap,map,gravity,tx,ty,tilesize,world)
 	for i = 1, #map do
         for j = 1, #map[i] do
         	local data = setFlippedID(map[i][j])
-        	if map[i][j] == 2 or map[i][j] >= 50 then --Background
-        		table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, r = data.r, sx = data.sx, sy = data.sy, id = data.id, type = 'bg'})
-        	elseif map[i][j] == 0 then
-                table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'outside'})
-                world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
-            elseif map[i][j] == 1 then --Vägg
-                table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'wall'})
-                world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
-            elseif map[i][j] == 8 then --Block spelare 1
-            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, r = data.r, sx = data.sx, sy = data.sy, id = 61, type = 'bg'})
-                table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, type = 'box'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 13 then --Block spelar 2
-            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, r = data.r, sx = data.sx, sy = data.sy, id = 61, type = 'bg'})
-                table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, type = 'box'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 9 then --Player1 spawn
-            	table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'start1'})
-                world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
-            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, r = data.r, sx = data.sx, sy = data.sy, id = 61, type = 'bg'})
-            	if nextmap == true then
+        	data.gravity = gravity
+			if data.id == 1 then
+				table.insert(objects, createobject(i,j,map,tx,ty,tilesize,data))
+				world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
+        	elseif data.id < 11 or (data.id > 11 and data.id < 21) then
+        		table.insert(bgobjects, createobject(i,j,map,tx,ty,tilesize,data))
+        		if ((data.id == 12 or data.id == 14) and nextmap == true) or ((data.id == 13 or data.id == 15) and nextmap == false) then
             		playerstart.x = tx+(j-1)*tilesize
             		playerstart.y = ty+(i-1)*tilesize
             	end
-            elseif map[i][j] == 11 then --Player2 spawn
-            	table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'start2'})
-                world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
-            	table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, r = data.r, sx = data.sx, sy = data.sy, id = 61, type = 'bg'})
-            	if nextmap == true then
-            		playerstart.x = tx+(j-1)*tilesize
-            		playerstart.y = ty+(i-1)*tilesize
+            	if data.id == 12 or data.id == 14 or data.id == 13 or data.id == 15 then
+					table.insert(objects, createobject(i,j,map,tx,ty,tilesize,data))
+					world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
             	end
-            elseif map[i][j] == 10 then --Player1 end
-            	table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'end1'})
-                world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
-                table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, r = data.r, sx = data.sx, sy = data.sy, id = 61, type = 'bg'})
-                if nextmap == false then
-            		playerstart.x = tx+(j-1)*tilesize
-            		playerstart.y = ty+(i-1)*tilesize
-            	end
-            elseif map[i][j] == 12 then --Player2 end
-            	table.insert(objects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, type = 'end2'})
-                world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
-                table.insert(bgobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, r = data.r, sx = data.sx, sy = data.sy, id = 61, type = 'bg'})
-            	if nextmap == false then
-            		playerstart.x = tx+(j-1)*tilesize
-            		playerstart.y = ty+(i-1)*tilesize
-            	end
-            elseif map[i][j] == 3 then --Trigger1 för block spelare 1
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'end1door'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 4 then --Trigger1 för spelare 1
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'end2door'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-
-            elseif map[i][j] == 15 then --Trigger1 för block spelare 1
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'box1trigger1'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 16 then --Trigger1 för spelare 1
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'player1trigger1'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 20 then --Trigger1 för block spelare 2
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'box2trigger1'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 18 then --Trigger1 för spelare 2
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'player2trigger1'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-
-            elseif map[i][j] == 22 then --Trigger2 för block spelare 1
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'box1trigger2'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 17 then --Trigger2 för spelare 1
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'player1trigger2'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 27 then --Trigger2 för block spelare 2
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'box2trigger2'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 19 then --Trigger2 för spelare 2
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'player2trigger2'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-
-            elseif map[i][j] == 36 then --Door1 för block spelare 1
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'box1door1'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 24 then --Door1 för spelare 1
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'player1door1'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 41 then --Door1 för block spelare 2
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'box2door1'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 26 then --Door1 för spelare 2
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'player2door1'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-
-            elseif map[i][j] == 43 then --Door2 för block spelare 1
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'box1door2'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 30 then --Door2 för spelare 1
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'player1door2'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 48 then --Door2 för block spelare 2
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'box2door2'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            elseif map[i][j] == 32 then --Door2 för spelare 2
-            	table.insert(movingobjects, {name ='x'..i..'y'..j, x = tx+(j-1)*tilesize, y = ty+(i-1)*tilesize, w = tilesize, h = tilesize, gravity = gravity, active = false, type = 'player2door2'})
-                world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
-            end
+        	elseif data.id == 11 then
+        		table.insert(movingobjects, createobject(i,j,map,tx,ty,tilesize,data))
+        		world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
+        		data.id = 2
+        		table.insert(bgobjects, createobject(i,j,map,tx,ty,tilesize,data))
+        	elseif data.id > 20 then
+        		table.insert(movingobjects, createobject(i,j,map,tx,ty,tilesize,data))
+        		world:add(movingobjects[#movingobjects],movingobjects[#movingobjects].x,movingobjects[#movingobjects].y,movingobjects[#movingobjects].w,movingobjects[#movingobjects].h)
+        	end
         end
     end
     return playerstart, bgobjects, objects, movingobjects
@@ -291,41 +198,27 @@ function object.move(object,x,y,world)
 end
 
 function object.fall(moveobject,tilesize,dt,world)
-	if moveobject.gravity == true and moveobject.type == 'box' then
+	if moveobject.gravity == true and moveobject.id == 11 then
 		object.move(moveobject,0,tilesize*6*dt,world)
 	end
 end
 
 function object.check(object, objects, world)
-	if object.type == 'box1trigger1' or object.type == 'player1trigger1' or object.type == 'box2trigger1' or object.type == 'player2trigger1'
-	or object.type == 'box1trigger2' or object.type == 'player1trigger2' or object.type == 'box2trigger2' or object.type == 'player2trigger2' then
+	if object.id == 21 or object.id == 22 or object.id == 23 or object.id == 24 or object.id == 25 or object.id == 26 or object.id == 27 or object.id == 28 then
+
 		local active = false
 		local actualX, actualY, cols, len = world:check(object, object.x, object.y,playerFilter)
 		for i=1,len do
     		local other = cols[i].other
-    		if ((object.type == 'box1trigger1' or object.type == 'box1trigger2') and other.type == 'box') or ((object.type == 'player1trigger1' or object.type == 'player1trigger2') and other.name == 'p1') 
-    		or ((object.type == 'box2trigger1' or object.type == 'box2trigger2') and other.type == 'box') or ((object.type == 'player2trigger1' or object.type == 'player2trigger2') and other.name == 'p2') then
+    		if ((object.id == 21 or object.id == 22 or object.id == 27 or object.id == 28) and other.id == 11) 
+    		or ((object.id == 23 or object.id == 24) and other.name == 'p1') or ((object.id == 25 or object.id == 26) and other.name == 'p2') then
     			active = true
     		end
     	end
     	object.active = active
-    -- 	local list = {}
-  	-- 	for i = 1, #objects do 
-    -- 		for j = 1, #objects[i] do
-    -- 			if object.type == objects[i].type then
-    -- 				table.insert(list,objects[i].active)
-    -- 			end
-    -- 		end
-    -- 	end
-    -- 	active = true
-    -- 	for i = 1, #list do
-    -- 		if list[i] == false then
-    -- 			active = false
-    -- 		end
-    -- 	end
 		for i = 1, #objects do 
     		for j = 1, #objects[i] do
-    			if objects[i][j].type == string.gsub(object.type,'trigger','door') then
+    			if objects[i][j].id == object.id+10 then
     				objects[i][j].active = active
     			end
     		end
