@@ -24,9 +24,6 @@ function game.load()
     esc = {button = 'escape', active = false}
     world[1]:add(players[1],players[1].x,players[1].y,players[1].w,players[1].h)
     world[2]:add(players[2],players[2].x,players[2].y,players[2].w,players[2].h)
-    --love.image.newImageData(1,1)
-    imagedata = love.image.newImageData('/maps/img/pixel.png')
-    image = love.graphics.newImage(imagedata)
 
     bgobjects, objects, movingobjects, objectcavanas = {}, {}, {}, {}
     for i = 1, #players do
@@ -122,6 +119,7 @@ function game.draw()
         object.drawobjects(movingobjects[i])
         player.drawplayers(players[i])
         love.graphics.setShader()
+        
     end
     camera1:unset()
     love.graphics.print(love.timer.getFPS(),0,0)
