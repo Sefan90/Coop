@@ -1,6 +1,7 @@
 local camera = require 'camera'
 local func = require 'func'
 local menu = {}
+local selectrow = 0
 
 function menu.load()
     mapsize = {x=48,y=36}
@@ -16,39 +17,32 @@ function menu.load()
 end
 
 function menu.update()
-	if love.keyboard.isDown('return') then
-		if menu.selected == 0 then
-			--Play
-		elseif menu.selected == 1 then
-			--Options
-		elseif menu.selected == 2 then
-			--Credits
-		elseif menu.selected == 3 then
-			--Exit
-		end
-	end
 end
 
 function menu.draw()
 	camera1:set()
-	love.graphics.setShader(myShader)
-	love.graphics.rectangle('fill', tilesize, ysize/3, xsize-tilesize*2, ysize/3)
-	love.graphics.setColor(0, 0, 0, 255)
-	love.graphics.rectangle('fill', tilesize*2, ysize/3+tilesize, xsize/3-tilesize*2, ysize/3-tilesize*2)
-	love.graphics.rectangle('fill', xsize/3+tilesize, ysize/3+tilesize, xsize/3-tilesize*2, ysize/3-tilesize*2)
-	love.graphics.rectangle('fill', xsize/3*2, ysize/3+tilesize, xsize/3-tilesize*2, ysize/3-tilesize*2)
-	love.graphics.setColor(255, 255, 255, 255)
-	love.graphics.print('Press enter to start', xsize/2, ysize/2)
-	love.graphics.setShader()
+	--love.graphics.setShader(myShader)
+	love.graphics.print('->', xsize/2, ysize/2+tilesize*selectrow)
+	love.graphics.print('	Press enter to start', xsize/2, ysize/2)
+	love.graphics.print('	Options', xsize/2, ysize/2+tilesize)
+	love.graphics.print('	Exit', xsize/2, ysize/2+tilesize*2)
+	--love.graphics.setShader()
 	camera1:unset()
-	--Play
-	--Options
-	--Exit
 end
 
 function menu.keypressed(key)
 	if key == 'return' then
-		load_state(require 'game')
+		if selectrow == 0 then
+			load_state(require 'game')
+		elseif selectrow == 1 then
+			load_state(require 'options')
+		else
+			love.event.quit()
+		end
+	elseif key == 'w' and selectrow ~= 0 then
+		selectrow = selectrow - 1
+	elseif key == 's' and selectrow ~= 2 then
+		selectrow = selectrow + 1
 	end
 end
 

@@ -1,5 +1,5 @@
 local func = require 'func'
-STATE = require "game" --"menu" -- start with this state
+STATE = require "menu" -- start with this state
 
 function load_state(new_state)
     if STATE.exit then STATE.exit() end

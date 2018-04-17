@@ -97,32 +97,31 @@ local function setFlippedID(id)
 end
 
 local function subtiles(i,j,map,tx,ty,data)
-	--TODO: Fixa så att denna kod fungerar. Nu fungerar data.id == 6 och data.r == math.rad(90)
+	--"Skapar" subtiles till nedanstående ID samt fixar till dem för rotation/flipp
 	local subtile = {{0,0},{0,0}} 
 	if data.id == 5 then 
 		subtile = {{1,1},{1,0}}
 	elseif data.id == 6 then 
-		subtile = {{1,0},{1,0}}
-	--elseif data.id == 7 then 
-	--	subtile = {{0,0},{0,1}}
-	--elseif data.id == 8 then 
-	--	subtile = {{0,0},{1,0}}
-	--elseif data.id == 18 then 
-	--	subtile = {{0,1},{0,0}}
+		subtile = {{1,1},{0,0}}
+	elseif data.id == 7 then 
+		subtile = {{0,0},{0,1}}
+	elseif data.id == 8 then 
+		subtile = {{0,0},{1,0}}
+	elseif data.id == 18 then 
+		subtile = {{0,1},{0,0}}
 	end 
-	print(data.r..' '..data.sx..' '..data.sy)
-	--Ordning hur blocken används: {1,1},{2,1},{1,2},{2,2}
-	if data.r == math.rad(90) then 
-		subtile = {{subtile[2][2],subtile[1][2]},{subtile[1][1],subtile[2][1]}}
-	elseif data.r == math.rad(-90) then 
-		subtile = {{subtile[2][1],subtile[1][1]},{subtile[1][2],subtile[2][2]}}
-	end 
+	print(data.id..' '..data.r..' '..data.sx..' '..data.sy)
 	if data.sx == -1 then 
-		subtile = {{subtile[2][1],subtile[2][2]},{subtile[1][1],subtile[1][2]}}
+		subtile = {{subtile[1][2],subtile[1][1]},{subtile[2][2],subtile[2][1]}}		
 	end 
 	if data.sy == -1 then 
-		subtile = {{subtile[1][2],subtile[1][1]},{subtile[2][2],subtile[2][1]}}
+		subtile = {{subtile[2][1],subtile[2][2]},{subtile[1][1],subtile[1][2]}}
 	end 
+	if data.r == math.rad(90) then 
+		subtile = {{subtile[2][1],subtile[1][1]},{subtile[2][2],subtile[1][2]}}
+	elseif data.r == math.rad(-90) then
+		subtile = {{subtile[1][2],subtile[2][2]},{subtile[1][1],subtile[2][1]}}
+	end
 	return subtile
 end
 
@@ -194,11 +193,12 @@ function object.createmovingobjects(nextmap,map,gravity,tx,ty,tilesize,world)
 				world:add(objects[#objects],objects[#objects].x,objects[#objects].y,objects[#objects].w,objects[#objects].h)
         	elseif data.id < 11 or (data.id > 11 and data.id < 21) then
         		table.insert(bgobjects, createobject(i,j,map,tx,ty,tilesize,data))
-        		if data.id == 5 or data.id == 6 or data.id == 7 or data.id == 8 or data.id == 18 then 
+        		if data.id == 5 or data.id == 6 or data.id == 7 or data.id == 8 or data.id == 17 then 
         			local subtiles = subtiles(i,j,map,tx,ty,data)
         			for x = 1,2 do
         				for y = 1,2 do
-        					if subtiles[x][y] == 1 then
+        					--För att blocken ska vara i rätt ordning
+        					if subtiles[y][x] == 1 then
         						local subtilestable = {name ='x'..i..'y'..j..'sx'..x..'sy'..y, x = tx+(j-1)*tilesize+(x-1)*tilesize/2, y = ty+(i-1)*tilesize+(y-1)*tilesize/2, w = tilesize/2, h = tilesize/2, id = 999}
         						table.insert(objects,subtilestable)
         						world:add(subtilestable,subtilestable.x,subtilestable.y,subtilestable.w,subtilestable.h)

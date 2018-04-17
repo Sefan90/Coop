@@ -12,8 +12,8 @@ local game = {}
 
 function game.load()
     mapsize = {x=24,y=18}
-    width, height = love.graphics.getDimensions()
-    tilesize = func.getTileSize(width,height,mapsize)
+    width, height = love.graphics.getDimensions()                                                           
+    tilesize = func.getTileSize(width,height,mapsize) 
     world = {bump.newWorld(tilesize), bump.newWorld(tilesize)}
     tx = (width-tilesize*mapsize.x)/2
     ty = (height-tilesize*mapsize.y)/2
